@@ -4,7 +4,8 @@ import { useState } from "react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
-import { Shield, AlertTriangle, CheckCircle2, XCircle, Mail } from "lucide-react"
+import { Dialog, DialogContent, DialogTrigger, DialogTitle, DialogClose } from "@/components/ui/dialog"
+import { Shield, AlertTriangle, CheckCircle2, XCircle, Mail, ZoomIn } from "lucide-react"
 
 type Email = {
   id: number
@@ -46,6 +47,20 @@ const emails: Email[] = [
     ],
   },
 ]
+
+function FullScreenImage({ src, alt }: { src: string; alt: string }) {
+  return (
+    <DialogClose asChild>
+      <div className="relative w-full h-full flex items-center justify-center cursor-pointer" title="Sulge">
+        <img
+          src={src}
+          alt={alt}
+          className="w-full h-full object-contain p-4"
+        />
+      </div>
+    </DialogClose>
+  )
+}
 
 export default function PhishingQuiz() {
   const [currentEmail, setCurrentEmail] = useState(0)
@@ -118,29 +133,28 @@ export default function PhishingQuiz() {
 
             {/* Email Display */}
             <Card className="mb-6">
-              <CardHeader className="bg-muted/30">
-                <div className="space-y-2">
-                  <div className="flex items-start justify-between">
-                    <div className="flex-1">
-                      <p className="text-sm text-muted-foreground">Saatja:</p>
-                      <p className="font-medium">{email.from}</p>
-                    </div>
-                  </div>
-                  <div>
-                    <p className="text-sm text-muted-foreground">Teema:</p>
-                    <p className="font-semibold text-lg">{email.subject}</p>
-                  </div>
-                </div>
-              </CardHeader>
               <CardContent className="pt-6">
                 {email.image ? (
-                  <div className="rounded-md border overflow-hidden">
-                    <img
-                      src={email.image || "/placeholder.svg"}
-                      alt="E-kirja sisu"
-                      className="w-full h-auto object-contain"
-                    />
-                  </div>
+                  <Dialog>
+                    <DialogTrigger asChild>
+                      <div className="rounded-md border overflow-hidden cursor-zoom-in group relative">
+                        <img
+                          src={email.image || "/placeholder.svg"}
+                          alt="E-kirja sisu"
+                          className="w-full h-auto object-contain"
+                        />
+                        <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors flex items-center justify-center">
+                          <div className="bg-background/80 p-2 rounded-full opacity-0 group-hover:opacity-100 transition-opacity">
+                            <ZoomIn className="h-6 w-6 text-foreground" />
+                          </div>
+                        </div>
+                      </div>
+                    </DialogTrigger>
+                    <DialogContent className="max-w-none sm:max-w-none w-screen h-screen m-0 p-0 rounded-none border-none bg-black/95 flex flex-col items-center justify-center">
+                       <DialogTitle className="sr-only">E-kirja eelvaade</DialogTitle>
+                       <FullScreenImage src={email.image} alt="E-kirja sisu" />
+                    </DialogContent>
+                  </Dialog>
                 ) : (
                   <div className="whitespace-pre-wrap font-mono text-sm leading-relaxed bg-muted/20 p-4 rounded-md border">
                     {email.body}
@@ -255,13 +269,6 @@ export default function PhishingQuiz() {
           </Card>
         )}
       </div>
-
-      {/* Footer */}
-      <footer className="border-t mt-12 py-6 bg-card">
-        <div className="container mx-auto px-4 text-center text-sm text-muted-foreground">
-          <p>Hariv tööriist pettuste teadlikkuse tõstmiseks • Püsi veebis turvalisena</p>
-        </div>
-      </footer>
     </main>
   )
 }
